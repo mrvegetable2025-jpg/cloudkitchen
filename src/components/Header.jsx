@@ -15,7 +15,7 @@ export default function Header() {
       {/* Desktop Links */}
       <nav className="nav-links">
         <Link to="/">Home</Link>
-        <Link to="/orders?meal=lunch">Orders</Link>
+        <Link to="/orders?meal=lunch">Menu</Link>
         <Link to="/checkout">Checkout</Link>
       </nav>
 
@@ -62,7 +62,7 @@ export default function Header() {
             <Link to="/" onClick={() => setOpen(false)}>Home</Link>
             <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>Orders</Link>
             <Link to="/checkout" onClick={() => setOpen(false)}>Checkout</Link>
-            <Link to="/admin" onClick={() => setOpen(false)}>Admin</Link>
+          
           </div>
         </>
       )}
