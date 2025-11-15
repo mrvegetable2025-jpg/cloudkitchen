@@ -241,7 +241,7 @@ async function sendOrderToSheet(orderId) {
             <h3 className="qr-title">Scan & Pay using GPay</h3>
             <img src="/gpay-qr.png" className="qr-image" />
             <a
-  href={`upi://pay?pa=YOUR-UPI-ID-HERE&pn=Thayaar%20Kitchen&am=${total}&cu=INR`}
+  href={`upi://pay?pa=Ganeshmuthu.2711-1@okicici&pn=Thayaar%20Kitchen&am=${total}&cu=INR`}
   style={{
     display: "block",
     marginTop: "15px",
