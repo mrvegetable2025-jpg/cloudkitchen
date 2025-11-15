@@ -43,9 +43,9 @@ export default function AboutPage() {
             textAlign: "center",
           }}
         >
-          Homemade South Indian Dinners – Light, Tasty & Heartwarming.
+          Homemade South Indian Food – Light, Tasty & Heartwarming.
           <br />
-          Pure Taste • Hygienic • Homemade Love
+          Freshly prepared , every bite filled with love, purity, and tradition.
         </p>
 
         {/* Why Choose Box */}
@@ -86,7 +86,6 @@ export default function AboutPage() {
           >
             <li>✅ Homemade & Hygienic</li>
             <li>✅ No Preservatives</li>
-            <li>✅ Temple-Taste South Indian Food</li>
             <li>✅ Cooked Fresh Every Day</li>
           </ul>
         </div>

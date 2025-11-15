@@ -59,14 +59,15 @@ export default function Header() {
               Home
             </Link>
             <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>
-              Orders
+              Menu
             </Link>
-            <Link to="/about" onClick={() => setOpen(false)}>
-              About
-            </Link> {/* ⭐ ADDED */}
+            {/* ⭐ ADDED */}
             <Link to="/checkout" onClick={() => setOpen(false)}>
               Checkout
             </Link>
+            <Link to="/about" onClick={() => setOpen(false)}>
+              About Us
+            </Link> 
 
           </div>
         </>
