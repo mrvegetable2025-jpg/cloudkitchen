@@ -76,7 +76,7 @@ Delivery Slot: ${slot}`
   }
 
   // ⭐ FINAL WORKING GOOGLE SHEET API CALL ⭐
- async function sendOrderToSheet(orderId) {
+async function sendOrderToSheet(orderId) {
   if (!ORDERS_WEBHOOK) return;
 
   const now = new Date();
@@ -94,20 +94,24 @@ Delivery Slot: ${slot}`
     "Date": now.toLocaleDateString()
   };
 
+  // convert to form-encoded string
+  const body = new URLSearchParams(payload).toString();
+
   try {
     const res = await fetch(ORDERS_WEBHOOK, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body,
     });
 
     const out = await res.text();
     console.log("SCRIPT RESPONSE:", out);
-    
+
   } catch (err) {
     console.error("SHEET ERROR:", err);
   }
 }
+
 
 
 
@@ -205,7 +209,12 @@ Delivery Slot: ${slot}`
 
         {/* RIGHT SIDE */}
         <div className="checkout-summary glass-card">
-          <h3>Order Summary</h3>
+          <h3>
+  Order Summary{" "}
+  <span style={{ fontSize: "0.8rem", color: "#9bb0c6", fontWeight: 400 }}>
+    (Packing and Delivery fee included)
+  </span>
+</h3>
 
           <div className="summary-row">
             <span>Total Amount</span>
