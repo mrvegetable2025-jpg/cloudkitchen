@@ -72,40 +72,41 @@ Delivery Slot: ${slot}`
   }
 
   // Send order to Google Sheet and get REAL orderId
-  async function sendOrderToSheet() {
-    if (!ORDERS_WEBHOOK) return null;
+async function sendOrderToSheet() {
+  if (!ORDERS_WEBHOOK) return null;
 
-    const now = new Date();
+  const now = new Date();
 
-    const payload = {
-      "Name": user?.name || "",
-      "Phone": user?.phone || "",
-      "Address": user?.address || "",
-      "Order Items": cart
-        .map(i => `${i.qty || 1}x ${i.name} (${new Date(i.deliveryDate).toLocaleDateString()})`)
-        .join(" | "),
-      "Amount": total,
-      "Slot": slot,
-      "Date": now.toLocaleDateString()
-    };
+  const payload = {
+    "Name": user?.name || "",
+    "Phone": user?.phone || "",
+    "Address": user?.address || "",
+    "Order Items": cart
+      .map(i => `${i.qty || 1}x ${i.name} (${new Date(i.deliveryDate).toLocaleDateString()})`)
+      .join(" | "),
+    "Amount": total,
+    "Slot": slot,
+    "Date": now.toLocaleDateString()
+  };
 
-    try {
-      const res = await fetch(ORDERS_WEBHOOK, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+  try {
+    const res = await fetch(ORDERS_WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(payload).toString(),
+    });
 
-      const data = await res.json();
-      console.log("SCRIPT RESPONSE:", data);
+    const data = await res.text();
+    console.log("SCRIPT RESPONSE:", data);
 
-      return data.orderId;
+    return data;   // return orderId from Apps Script output
 
-    } catch (err) {
-      console.error("SHEET ERROR:", err);
-      return null;
-    }
+  } catch (err) {
+    console.error("SHEET ERROR:", err);
+    return null;
   }
+}
+
 
   async function handleConfirmPayment() {
     if (!user) return alert("Please sign up first.");
