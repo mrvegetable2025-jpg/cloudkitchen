@@ -3,11 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useCart } from "../context/CartContext";
 
 const STORAGE_KEY = "Thaayar Kitchen_user";
-const ORDER_COUNTER_KEY = "Thaayar Kitchen_order_counter";
 
 export default function CheckoutPage() {
   const { cart, total, updateQty, removeFromCart, clearCart } = useCart();
-
   const [verified, setVerified] = useState(false);
   const [slot, setSlot] = useState("11:00 AM – 01:00 PM");
   const [user, setUser] = useState(null);
@@ -16,7 +14,10 @@ export default function CheckoutPage() {
   const STORE_NAME = import.meta.env.VITE_STORE_NAME || "Thaayar Kitchen";
   const ORDERS_WEBHOOK = import.meta.env.VITE_ORDERS_WEBHOOK;
 
-  // Load user data
+  // Detect Mobile
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  // Load signed-up user
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -28,7 +29,7 @@ export default function CheckoutPage() {
     return ["11:00 AM – 01:00 PM"];
   }
 
-  // Group cart items by day
+  // Group items
   function group(items) {
     const map = {};
     items.forEach((it) => {
@@ -38,13 +39,14 @@ export default function CheckoutPage() {
     return map;
   }
 
-  // Create WhatsApp message
   function whatsappLink(orderId) {
     const grouped = group(cart);
-
     let itemsText = "";
+
     Object.keys(grouped).forEach((day) => {
-      const dateLabel = new Date(grouped[day][0].deliveryDate).toLocaleDateString();
+      const dateLabel = new Date(
+        grouped[day][0].deliveryDate
+      ).toLocaleDateString();
 
       itemsText += `${day} (${dateLabel}):\n`;
 
@@ -55,7 +57,9 @@ export default function CheckoutPage() {
       itemsText += "\n";
     });
 
-    const userText = user ? `${user.name}\n${user.phone}\n${user.address}\n\n` : "";
+    const userText = user
+      ? `${user.name}\n${user.phone}\n${user.address}\n\n`
+      : "";
 
     const msg = encodeURIComponent(
 `${STORE_NAME}
@@ -71,202 +75,266 @@ Delivery Slot: ${slot}`
     return `https://wa.me/${WHATSAPP_NUM.replace(/\+/g, "")}?text=${msg}`;
   }
 
-  // Send order to Google Sheet and get REAL orderId
-async function sendOrderToSheet() {
-  if (!ORDERS_WEBHOOK) return null;
+  async function sendOrderToSheet() {
+    if (!ORDERS_WEBHOOK) return null;
 
-  const now = new Date();
+    const now = new Date();
 
-  const payload = {
-    "Name": user?.name || "",
-    "Phone": user?.phone || "",
-    "Address": user?.address || "",
-    "Order Items": cart
-      .map(i => `${i.qty || 1}x ${i.name} (${new Date(i.deliveryDate).toLocaleDateString()})`)
-      .join(" | "),
-    "Amount": total,
-    "Slot": slot,
-    "Date": now.toLocaleDateString()
-  };
+    const payload = {
+      Name: user?.name || "",
+      Phone: user?.phone || "",
+      Address: user?.address || "",
+      "Order Items": cart
+        .map(
+          (i) =>
+            `${i.qty || 1}x ${i.name} (${new Date(
+              i.deliveryDate
+            ).toLocaleDateString()})`
+        )
+        .join(" | "),
+      Amount: total,
+      Slot: slot,
+      Date: now.toLocaleDateString(),
+    };
 
-  try {
-    const res = await fetch(ORDERS_WEBHOOK, {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(payload).toString(),
-    });
+    try {
+      const res = await fetch(ORDERS_WEBHOOK, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(payload).toString(),
+      });
 
-    const data = await res.text();
-    console.log("SCRIPT RESPONSE:", data);
-
-    return data;   // return orderId from Apps Script output
-
-  } catch (err) {
-    console.error("SHEET ERROR:", err);
-    return null;
+      return await res.text(); // real order ID
+    } catch {
+      return null;
+    }
   }
-}
 
+  function handleConfirmPayment() {
+    if (!user)
+      return alert("Please sign up before confirming your payment.");
 
-  async function handleConfirmPayment() {
-    if (!user) return alert("Please sign up first.");
     setVerified(true);
-    alert("Payment confirmed — WhatsApp enabled.");
+    alert("Payment confirmed — Now you can place order.");
   }
 
   async function handleSend() {
     if (!verified) return alert("Confirm payment first.");
 
-    const orderId = await sendOrderToSheet();   // ⭐ Get real ID from sheet
-
-    if (!orderId) return alert("Error saving order!");
+    const orderId = await sendOrderToSheet();
+    if (!orderId) return alert("Order could not be saved!");
 
     window.open(whatsappLink(orderId), "_blank");
-
     clearCart();
-    setTimeout(() => (window.location.href = "/success"), 1200);
+
+    setTimeout(() => (window.location.href = "/success"), 900);
   }
 
- return (
-  <div className="checkout-wrapper container fade-in">
-    <h1 className="page-title">🧾 Checkout</h1>
+  return (
+    <div className="checkout-wrapper container fade-in">
+      <h1 className="page-title">🧾 Checkout</h1>
 
-    {/* Support Button */}
-    <div
-      className="support-badge"
-      onClick={() =>
-        window.open(
-          `https://wa.me/${WHATSAPP_NUM.replace(/\+/g, "")}?text=Hello%2C%20I%20need%20help`,
-          "_blank"
-        )
-      }
-    >
-      💬 Need help? Contact Support
-    </div>
-
-    <div className="checkout-layout">
-      {/* LEFT SIDE */}
-      <div className="checkout-items">
-        {cart.length === 0 && (
-          <div className="glass-empty">Your cart is empty</div>
-        )}
-
-        {cart.map((it) => (
-          <div className="glass-card checkout-card-new" key={it.id}>
-            <img
-              src={it.imageUrl || "/no-image.png"}
-              className="checkout-img-new"
-            />
-
-            <div className="checkout-content">
-              <div className="checkout-title-new">{it.name}</div>
-
-              <div className="checkout-price-line">
-                ₹{it.price}
-                <span className="checkout-qty-mult">×</span>
-                <span>{it.qty || 1}</span>
-              </div>
-
-              <div className="checkout-dayTag">
-                {it.dayLabel} •{" "}
-                <span>{new Date(it.deliveryDate).toLocaleDateString()}</span>
-              </div>
-
-              <div className="checkout-cat">Category: {it.category}</div>
-
-              <div className="qty-controls-modern">
-                <button onClick={() => updateQty(it.id, (it.qty || 1) - 1)}>
-                  −
-                </button>
-                <span>{it.qty || 1}</span>
-                <button onClick={() => updateQty(it.id, (it.qty || 1) + 1)}>
-                  +
-                </button>
-              </div>
-
-              <button
-                className="remove-btn-modern"
-                onClick={() => removeFromCart(it.id)}
-              >
-                Remove
-              </button>
-            </div>
-
-            <div className="checkout-total-new">
-              ₹{it.price * (it.qty || 1)}
-            </div>
-          </div>
-        ))}
+      {/* Support Badge */}
+      <div
+        className="support-badge"
+        onClick={() =>
+          window.open(
+            `https://wa.me/${WHATSAPP_NUM.replace(
+              /\+/g,
+              ""
+            )}?text=Hello%2C%20I%20need%20help`,
+            "_blank"
+          )
+        }
+      >
+        💬 Need help? Contact Support
       </div>
 
-      {/* RIGHT SIDE SUMMARY */}
-      <div className="checkout-summary glass-card better-summary">
+      <div className="checkout-layout">
+        {/* LEFT SIDE — CART */}
+        <div className="checkout-items">
+          {cart.length === 0 && (
+            <div className="glass-empty">Your cart is empty</div>
+          )}
 
-  <h2 className="summary-title">
-    Order Summary  
-    <span className="summary-sub">(Packing & Delivery included)</span>
-  </h2>
+          {cart.map((it) => (
+            <div className="glass-card checkout-card-new" key={it.id}>
+              <img
+                src={it.imageUrl || "/no-image.png"}
+                className="checkout-img-new"
+              />
 
-  <div className="summary-row">
-    <span>Total Amount</span>
-    <span className="summary-amount">₹{total}</span>
-  </div>
+              <div className="checkout-content">
+                <div className="checkout-title-new">{it.name}</div>
 
-  <div className="checkout-block">
-    <label className="label">Delivery Slot</label>
-    <select className="select modern-select" value={slot} onChange={(e) => setSlot(e.target.value)}>
-      {availableSlots().map((s) => (
-        <option key={s} value={s}>{s}</option>
-      ))}
-    </select>
-  </div>
+                <div className="checkout-price-line">
+                  ₹{it.price} × {it.qty || 1}
+                </div>
 
-  <h3 className="qr-heading">Scan & Pay</h3>
+                <div className="checkout-dayTag">
+                  {it.dayLabel} •{" "}
+                  {new Date(it.deliveryDate).toLocaleDateString()}
+                </div>
 
-  <div className="qr-card">
-    <img src="/gpay-qr.png" className="qr-img" />
-  </div>
+                <div className="checkout-cat">
+                  Category: {it.category}
+                </div>
 
-  <a
-  href={`upi://pay?pa=ganeshmuthu2711@okicici&pn=Thaayar%20Kitchen&am=${total}&cu=INR`}
+                <div className="qty-controls-modern">
+                  <button
+                    onClick={() =>
+                      updateQty(it.id, (it.qty || 1) - 1)
+                    }
+                  >
+                    −
+                  </button>
+                  <span>{it.qty || 1}</span>
+                  <button
+                    onClick={() =>
+                      updateQty(it.id, (it.qty || 1) + 1)
+                    }
+                  >
+                    +
+                  </button>
+                </div>
 
-    className="btn-primary-pay"
-  >
-    💳 Pay with GPay / PhonePe / Paytm
-  </a>
+                <button
+                  className="remove-btn-modern"
+                  onClick={() => removeFromCart(it.id)}
+                >
+                  Remove
+                </button>
+              </div>
 
-  <p className="qr-note">After completing payment click below</p>
+              <div className="checkout-total-new">
+                ₹{it.price * (it.qty || 1)}
+              </div>
+            </div>
+          ))}
+        </div>
 
-  <button className="btn-confirm" onClick={handleConfirmPayment}>
-    I Have Completed Payment
-  </button>
+        {/* RIGHT SIDE — SUMMARY */}
+        <div className="checkout-summary glass-card better-summary">
+          <h2 className="summary-title">
+            Order Summary{" "}
+            <span className="summary-sub">(Includes delivery)</span>
+          </h2>
 
-  {!user && (
-    <button className="btn-outline" onClick={() => (window.location.href = "/auth")}>
-      Sign up
-    </button>
-  )}
+          <div className="summary-row">
+            <span>Total Amount</span>
+            <span className="summary-amount">₹{total}</span>
+          </div>
 
-  <button
-    className="btn-whatsapp-final"
-    disabled={!verified || !user}
-    style={{
-      opacity: !verified || !user ? 0.5 : 1,
-      pointerEvents: !verified || !user ? "none" : "auto",
-    }}
-    onClick={handleSend}
-  >
-    Send Order via WhatsApp
-  </button>
+          {/* Delivery Slot */}
+          <label className="label">Delivery Slot</label>
+          <select
+            className="select modern-select"
+            value={slot}
+            onChange={(e) => setSlot(e.target.value)}
+          >
+            {availableSlots().map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
 
-  <button className="btn-outline remove" onClick={clearCart}>
-    Clear Order
-  </button>
+          {/* QR */}
+          <h3 className="qr-heading">Scan & Pay</h3>
+          <div className="qr-card">
+            <img src="/gpay-qr.png" className="qr-img" />
+          </div>
 
-</div>
+          {/* Mobile Only Pay Button */}
+          {isMobile && (
+            <a
+              href={`upi://pay?pa=ganeshmuthu2711@okicici&pn=Thaayar%20Kitchen&am=${total}&cu=INR`}
+              className="btn-modern-pay"
+              onClick={(e) => {
+                if (!user) {
+                  e.preventDefault();
+                  alert("Please sign up before paying.");
+                }
+              }}
+              style={{
+                opacity: user ? 1 : 0.4,
+                pointerEvents: user ? "auto" : "none",
+              }}
+            >
+              💳 Pay Securely
+            </a>
+          )}
 
+          {/* Desktop Tooltip */}
+          {!isMobile && (
+            <p
+              style={{
+                color: "#9fd4ff",
+                marginTop: 5,
+                fontSize: "0.9rem",
+              }}
+            >
+              
+            </p>
+          )}
+
+          {/* Confirm Payment */}
+          <button
+            className="btn-confirm"
+            disabled={!user}
+            onClick={handleConfirmPayment}
+            style={{
+              opacity: user ? 1 : 0.4,
+              pointerEvents: user ? "auto" : "none",
+            }}
+          >
+            ✔ I Have Completed Payment
+          </button>
+
+          {/* SIGN-UP Button with GREEN Glow */}
+          {!user && (
+            <button
+              className="btn-outline"
+              onClick={() => (window.location.href = "/auth")}
+              style={{
+                boxShadow: "0 0 15px rgba(34,197,94,0.75)",
+                borderColor: "rgba(34,197,94,0.6)",
+                color: "#7bff9f",
+                animation: "pulseGreen 1.5s infinite",
+              }}
+            >
+              ✨ Sign up to Continue
+            </button>
+          )}
+
+          {/* SEND ORDER */}
+          <button
+            className="btn-whatsapp-final"
+            disabled={!verified || !user}
+            style={{
+              opacity: !verified || !user ? 0.4 : 1,
+              pointerEvents: !verified || !user ? "none" : "auto",
+            }}
+            onClick={handleSend}
+          >
+            📩 Send Order via WhatsApp
+          </button>
+
+          {/* CLEAR */}
+          <button className="btn-outline remove" onClick={clearCart}>
+            Clear Order
+          </button>
+        </div>
+      </div>
+
+      {/* GREEN GLOW ANIMATION */}
+      <style>{`
+        @keyframes pulseGreen {
+          0% { box-shadow: 0 0 5px rgba(34,197,94,0.4); }
+          50% { box-shadow: 0 0 18px rgba(34,197,94,0.9); }
+          100% { box-shadow: 0 0 5px rgba(34,197,94,0.4); }
+        }
+      `}</style>
     </div>
-  </div>
-);
-
+  );
 }

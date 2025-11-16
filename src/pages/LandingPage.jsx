@@ -162,7 +162,7 @@ export default function LandingPage() {
 
               <div className="meal-name">{m.label}</div>
               <div className="meal-sub">
-                {isActive ? "Available Today" : "Coming Soon"}
+                {isActive ? "Available" : "Coming Soon"}
               </div>
             </div>
           );
