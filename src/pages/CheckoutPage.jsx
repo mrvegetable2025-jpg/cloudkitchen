@@ -10,8 +10,8 @@ export default function CheckoutPage() {
   const [slot, setSlot] = useState("11:00 AM – 01:00 PM");
   const [user, setUser] = useState(null);
 
-  const [paymentClicked, setPaymentClicked] = useState(false); // ⭐ added
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); // ⭐ added
+  const [paymentClicked, setPaymentClicked] = useState(false);
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
   const WHATSAPP_NUM = import.meta.env.VITE_WHATSAPP_NUMBER;
   const STORE_NAME = import.meta.env.VITE_STORE_NAME || "Thaayar Kitchen";
@@ -111,7 +111,6 @@ Delivery Slot: ${slot}`
     if (!user)
       return alert("Please sign up before confirming your payment.");
 
-    // ⭐ MOBILE → Only allow if Pay button clicked
     if (isMobile && !paymentClicked) {
       return alert("Please click Pay Securely first.");
     }
@@ -131,11 +130,10 @@ Delivery Slot: ${slot}`
     setTimeout(() => (window.location.href = "/success"), 900);
   }
 
-  // ⭐ FINAL MERCHANT UPI LINK
+  // ⭐ UPDATED — UNIVERSAL UPI LINK (Google Pay + PhonePe + Paytm + BHIM)
   function upiLink(amount) {
-  return `intent://pay?pa=8524845927@okbizaxis&pn=Thaayar%20Kitchen&am=${amount}&cu=INR#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
-}
-
+    return `upi://pay?pa=8524845927@okbizaxis&pn=Thaayar%20Kitchen&am=${amount}&cu=INR`;
+  }
 
   return (
     <div className="checkout-wrapper container fade-in">
@@ -244,7 +242,7 @@ Delivery Slot: ${slot}`
                 e.preventDefault();
                 alert("Please sign up before making payment.");
               } else {
-                if (isMobile) setPaymentClicked(true); // ⭐ mobile logic
+                if (isMobile) setPaymentClicked(true);
               }
             }}
             style={{
