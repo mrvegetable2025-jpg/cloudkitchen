@@ -22,7 +22,6 @@ export default function Header() {
         <nav className="nav-links">
           <Link to="/">Home</Link>
           <Link to="/orders?meal=lunch">Menu</Link>
-          
           <Link to="/checkout">Checkout</Link>
           <Link to="/about">About</Link>
         </nav>
@@ -44,8 +43,8 @@ export default function Header() {
 
             <Link to="/" onClick={() => setOpen(false)}>Home</Link>
             <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>Menu</Link>
-            <Link to="/about" onClick={() => setOpen(false)}>About</Link>
             <Link to="/checkout" onClick={() => setOpen(false)}>Checkout</Link>
+            <Link to="/about" onClick={() => setOpen(false)}>About</Link>
           </div>
         </>
       )}
