@@ -36,7 +36,7 @@ export default function OrdersPage() {
           description: r.description,
           price: Number(r.price || 0),
           category: (r.category || "").toLowerCase(),
-          isActive: ((r.isActive || "true").toLowerCase() === "true"),
+          isActive: (r.isActive || "true").toLowerCase() === "true",
           day: (r.day || r.availableDays || "").toLowerCase(),
           imageUrl: r.imageUrl,
           stockAvailability: (r.stockAvailability || "in").toLowerCase(),
@@ -72,10 +72,12 @@ export default function OrdersPage() {
       menuItems.some((mi) => {
         if (!mi.day) return false;
         const allowed = mi.day
-          .split(/[\s,;|]+/).map((x) => x.trim().slice(0, 3).toLowerCase());
+          .split(/[\s,;|]+/)
+          .map((x) => x.trim().slice(0, 3).toLowerCase());
         const wk = new Date(d.iso)
           .toLocaleDateString(undefined, { weekday: "short" })
-          .slice(0, 3).toLowerCase();
+          .slice(0, 3)
+          .toLowerCase();
         return allowed.includes(wk);
       })
     )
@@ -94,10 +96,12 @@ export default function OrdersPage() {
       {daysWithItems.map((d) => {
         const items = menuItems.filter((mi) => {
           const allowed = (mi.day || "")
-            .split(/[\s,;|]+/).map((x) => x.trim().slice(0, 3).toLowerCase());
+            .split(/[\s,;|]+/)
+            .map((x) => x.trim().slice(0, 3).toLowerCase());
           const wk = new Date(d.iso)
             .toLocaleDateString(undefined, { weekday: "short" })
-            .slice(0, 3).toLowerCase();
+            .slice(0, 3)
+            .toLowerCase();
           return allowed.includes(wk);
         });
 
@@ -109,10 +113,9 @@ export default function OrdersPage() {
 
         return (
           <section key={d.iso} style={{ marginBottom: 38 }}>
-
             {/* ⭐✨ FLOATING GLASS DATE TILE (Style C) */}
             <div className="date-tile fade-soft">
-              <span className="date-icon">📅</span>
+              <span className="date-icon"></span>
               <span>{labelFull}</span>
             </div>
 
@@ -126,7 +129,8 @@ export default function OrdersPage() {
                 if (category === "lunch") {
                   const delivery = new Date(d.iso);
                   delivery.setHours(11, 0, 0, 0);
-                  const diffHours = (delivery.getTime() - Date.now()) / 3600000;
+                  const diffHours =
+                    (delivery.getTime() - Date.now()) / 3600000;
                   const hoursLeftToClose = diffHours - 14;
                   isClosed = hoursLeftToClose <= 0;
                   countdownText = isClosed
@@ -138,7 +142,8 @@ export default function OrdersPage() {
                 if (category === "snacks") {
                   const delivery = new Date(d.iso);
                   delivery.setHours(16, 0, 0, 0);
-                  const diffHours = (delivery.getTime() - Date.now()) / 3600000;
+                  const diffHours =
+                    (delivery.getTime() - Date.now()) / 3600000;
                   const hoursLeftToClose = diffHours - 14;
                   isClosed = hoursLeftToClose <= 0;
                   countdownText = isClosed
@@ -239,7 +244,9 @@ export default function OrdersPage() {
                           }}
                         >
                           {isBlocked
-                            ? (isOutOfStock ? "Out of Stock" : "Order Closed")
+                            ? isOutOfStock
+                              ? "Out of Stock"
+                              : "Order Closed"
                             : `Add to cart (for ${new Date(
                                 d.iso
                               ).toLocaleDateString()})`}
@@ -254,7 +261,7 @@ export default function OrdersPage() {
         );
       })}
 
-      {/* DATE TILE CSS */}
+      {/* DATE TILE + IMAGE CSS */}
       <style>{`
         .date-tile {
           width: fit-content;
@@ -292,7 +299,115 @@ export default function OrdersPage() {
           50% { box-shadow: 0 0 22px rgba(0,160,255,0.45); }
           100% { box-shadow: 0 0 12px rgba(0,160,255,0.25); }
         }
+
+        /* 🔥 FOOD IMAGE OVERRIDE – show full dish, modern look */
+        .card-img-box {
+          width: 100%;
+          height: auto !important;      /* remove fixed height that crops */
+          max-height: none !important;
+          padding: 10px 10px 4px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background: radial-gradient(circle at top, #1e293b, #020617);
+        }
+
+        .food-img {
+          width: 100%;
+          height: auto !important;      /* keep aspect ratio */
+          object-fit: contain !important; /* full plate visible, no cut */
+          border-radius: 18px;
+          display: block;
+          box-shadow: 0 18px 32px rgba(15,23,42,0.7);
+        }
+
+        @media (max-width: 640px) {
+          .food-img {
+            border-radius: 16px;
+            box-shadow: 0 12px 24px rgba(15,23,42,0.7);
+          }
+        }
       `}</style>
     </div>
   );
 }
+<style>{`
+  .date-tile {
+    width: fit-content;
+    margin: 14px auto 26px;
+    padding: 10px 22px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: #bde0ff;
+    font-size: 1.05rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 18px rgba(0,160,255,0.28);
+    animation: glowPulse 2.2s infinite ease-in-out;
+  }
+
+  .date-icon {
+    font-size: 1.2rem;
+  }
+
+  .fade-soft {
+    animation: fadeInSoft 0.7s ease-out;
+  }
+
+  @keyframes fadeInSoft {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes glowPulse {
+    0%   { box-shadow: 0 0 12px rgba(0,160,255,0.25); }
+    50%  { box-shadow: 0 0 22px rgba(0,160,255,0.45); }
+    100% { box-shadow: 0 0 12px rgba(0,160,255,0.25); }
+  }
+
+  /* ⭐ CARD LAYOUT (keeps height under control) */
+  .food-card {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* 🔥 UNIFORM IMAGE AREA – desktop & mobile */
+  .food-card .card-img-box {
+    width: 100%;
+    aspect-ratio: 4 / 3;                /* ⬅ same height for all cards */
+    padding: 12px;
+    border-radius: 24px 24px 0 0;
+    background: radial-gradient(circle at top, #1e293b, #020617);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;                   /* clean rounded corners */
+  }
+
+  .food-card .card-img-box img.food-img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;                /* ⬅ FULL image, no crop */
+    border-radius: 18px;
+    display: block;
+    box-shadow: 0 18px 30px rgba(15,23,42,0.85);
+  }
+
+  /* 📱 Mobile – little more square so card not too long */
+  @media (max-width: 640px) {
+    .food-card .card-img-box {
+      aspect-ratio: 1 / 1;             /* slightly shorter on small screens */
+      padding: 10px;
+    }
+    .food-card .card-img-box img.food-img {
+      border-radius: 16px;
+      box-shadow: 0 12px 24px rgba(15,23,42,0.8);
+    }
+  }
+`}</style>
