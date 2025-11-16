@@ -10,9 +10,6 @@ export default function CheckoutPage() {
   const [slot, setSlot] = useState("11:00 AM – 01:00 PM");
   const [user, setUser] = useState(null);
 
-  const [paymentClicked, setPaymentClicked] = useState(false);
-  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
   const WHATSAPP_NUM = import.meta.env.VITE_WHATSAPP_NUMBER;
   const STORE_NAME = import.meta.env.VITE_STORE_NAME || "Thaayar Kitchen";
   const ORDERS_WEBHOOK = import.meta.env.VITE_ORDERS_WEBHOOK;
@@ -68,9 +65,7 @@ ${userText}Order Details:
 ${itemsText}
 Total: ₹${total}
 Delivery Slot: ${slot}
-
-UPI ID: 8524845927@okbizaxis
-Please complete payment and send confirmation.`
+`
     );
 
     return `https://wa.me/${WHATSAPP_NUM.replace(/\+/g, "")}?text=${msg}`;
@@ -114,12 +109,8 @@ Please complete payment and send confirmation.`
     if (!user)
       return alert("Please sign up before confirming your payment.");
 
-    if (isMobile && !paymentClicked) {
-      return alert("Please click Pay Securely first.");
-    }
-
     setVerified(true);
-    alert(" Now you can place order.");
+    alert("Payment marked as completed. You can now send the order.");
   }
 
   async function handleSend() {
@@ -132,15 +123,6 @@ Please complete payment and send confirmation.`
     clearCart();
     setTimeout(() => (window.location.href = "/success"), 900);
   }
-
-  // ⭐ UNIVERSAL WORKING UPI LINK (best & safest)
-function upiLink(amount) {
-  const pa = "sakthiparamesh96-1@okhdfcbank";   // your active UPI ID
-  const pn = encodeURIComponent("Thaayar Kitchen");
-  return `upi://pay?pa=${pa}&pn=${pn}&am=${amount}&cu=INR&mode=02&purpose=00`;
-}
-
-
 
   return (
     <div className="checkout-wrapper container fade-in">
@@ -234,33 +216,16 @@ function upiLink(amount) {
             ))}
           </select>
 
-          <h3 className="qr-heading">Scan to Pay OR Tap to Pay</h3>
+          <h3 className="qr-heading blink-scan">🔵 Scan to Pay</h3>
 
-          <div className="qr-card">
-            <img src="/gpay-qr.png" className="qr-img" alt="Scan to pay" />
-          </div>
+<div className="qr-glass-wrapper">
+  <div className="qr-glass-frame">
+    <img src="/gpay-qr.png" className="qr-img" alt="Scan to Pay" />
+  </div>
+</div>
 
-          {/* PAY BUTTON */}
-          <a
-            href={upiLink(total)}
-            className="btn-modern-pay"
-            onClick={(e) => {
-              if (!user) {
-                e.preventDefault();
-                alert("Please sign up before making payment.");
-              } else if (isMobile) {
-                setPaymentClicked(true);
-              }
-            }}
-            style={{
-              opacity: user ? 1 : 0.4,
-              pointerEvents: user ? "auto" : "none",
-            }}
-          >
-            💳 Pay Securely
-          </a>
 
-          {/* CONFIRM */}
+          {/* CONFIRM BUTTON */}
           <button
             className="btn-confirm"
             onClick={handleConfirmPayment}
