@@ -10,6 +10,7 @@ import SuccessPage from "./pages/SuccessPage";
 import FloatingTools from "./components/FloatingTools";
 import AuthPage from "./pages/AuthPage";
 import AboutPage from "./pages/AboutPage";
+import ReviewsPage from "./pages/ReviewsPage";
 
 export default function App() {
   return (
@@ -23,6 +24,8 @@ export default function App() {
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
+
         <Route path="/about" element={<AboutPage />} />
       </Routes>
 
