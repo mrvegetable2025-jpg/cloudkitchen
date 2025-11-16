@@ -134,11 +134,12 @@ Please complete payment and send confirmation.`
   }
 
   // ⭐ UNIVERSAL WORKING UPI LINK (best & safest)
-  function upiLink(amount) {
-  const pa = "8524845927@oksbi"; // ✓ personal UPI also works
+function upiLink(amount) {
+  const pa = "sakthiparamesh96-1@okhdfcbank";   // your active UPI ID
   const pn = encodeURIComponent("Thaayar Kitchen");
   return `upi://pay?pa=${pa}&pn=${pn}&am=${amount}&cu=INR&mode=02&purpose=00`;
 }
+
 
 
   return (
