@@ -50,7 +50,7 @@ export default function DeliveryCheckBanner() {
         <div style={styles.left}>
           <span style={styles.icon}>📍</span>
           <span style={styles.text}>
-            Check if we deliver to your location
+            Check Delivery Availability for Your Location
           </span>
         </div>
 

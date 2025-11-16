@@ -14,7 +14,8 @@ export default function Header() {
         {/* LOGO + BRAND */}
         <div className="brand">
           <img src={Logo} alt="Logo" className="brand-logo" />
-          <span className="brand-name">Thaayar Kitchen</span>
+          <span className="brand-name lugrasimo">Thaayar Kitchen</span>
+
         </div>
 
         {/* Desktop Nav */}
