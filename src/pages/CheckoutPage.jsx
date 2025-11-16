@@ -133,8 +133,9 @@ Delivery Slot: ${slot}`
 
   // ⭐ FINAL MERCHANT UPI LINK
   function upiLink(amount) {
-    return `upi://pay?pa=9841857762@ybl&pn=Thaayar%20Kitchen&am=${amount}&cu=INR`;
-  }
+  return `intent://pay?pa=8524845927@okbizaxis&pn=Thaayar%20Kitchen&am=${amount}&cu=INR#Intent;scheme=upi;package=com.google.android.apps.nbu.paisa.user;end`;
+}
+
 
   return (
     <div className="checkout-wrapper container fade-in">
