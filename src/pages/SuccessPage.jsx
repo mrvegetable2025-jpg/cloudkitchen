@@ -19,9 +19,9 @@ export default function SuccessPage() {
           <p>Pure Taste • Hygienic • Homemade Love</p>
         </div>
 
-        {/* --- Section 2: Why Choose Thayaar Kitchen --- */}
+        {/* --- Section 2: Why Choose Thaayar Kitchen --- */}
         <div className="success-section checklist">
-          <h3>🌸 Why Choose Thayaar Kitchen?</h3>
+          <h3>🌸 Why Choose Thaayar Kitchen?</h3>
           <ul>
             <li>✅ Homemade & Hygienic</li>
             <li>✅ No Preservatives</li>
@@ -34,7 +34,7 @@ export default function SuccessPage() {
         <div className="success-section">
        
           <p>
-            Thayaar Kitchen delivers <strong>“Ammavin Samayal Taste”</strong> right to your doorstep.
+            Thaayar Kitchen delivers <strong>“Ammavin Samayal Taste”</strong> right to your doorstep.
           </p>
         </div>
 

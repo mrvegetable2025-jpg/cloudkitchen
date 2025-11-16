@@ -1,74 +1,50 @@
 // src/components/Header.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Logo from "../assets/Logocp.jpg"; 
+// <-- NEW LOGO IMPORT
 
 export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="site-header">
-      <div className="site-brand">
-        <div className="logo">🍲</div>
-        <div className="brand-name">Thayaar Kitchen</div>
+    <header className="glass-header">
+      <div className="header-inner">
+
+        {/* LOGO + BRAND */}
+        <div className="brand">
+          <img src={Logo} alt="Logo" className="brand-logo" />
+          <span className="brand-name">Thaayar Kitchen</span>
+        </div>
+
+        {/* Desktop Nav */}
+        <nav className="nav-links">
+          <Link to="/">Home</Link>
+          <Link to="/orders?meal=lunch">Menu</Link>
+          
+          <Link to="/checkout">Checkout</Link>
+          <Link to="/about">About</Link>
+        </nav>
+
+        {/* Hamburger */}
+        <div className="hamburger" onClick={() => setOpen(!open)}>
+          <span></span>
+          <span></span>
+        </div>
       </div>
 
-      {/* Desktop Links */}
-      <nav className="nav-links">
-        <Link to="/">Home</Link>
-        <Link to="/orders?meal=lunch">Menu</Link>
-        <Link to="/about">About</Link> {/* ⭐ ADDED */}
-        <Link to="/checkout">Checkout</Link>
-      </nav>
-
-      {/* Hamburger Icon */}
-      <div className="hamburger" onClick={() => setOpen(!open)}>
-        <span
-          style={{
-            width: "26px",
-            height: "3px",
-            background: "white",
-            borderRadius: "4px",
-          }}
-        ></span>
-        <span
-          style={{
-            width: "20px",
-            height: "3px",
-            background: "white",
-            borderRadius: "4px",
-          }}
-        ></span>
-      </div>
-
-      {/* MOBILE SLIDE MENU */}
+      {/* MOBILE MENU */}
       {open && (
         <>
-          {/* Dark overlay */}
           <div className="overlay" onClick={() => setOpen(false)} />
 
-          {/* Sidebar */}
-          <div className="mobile-menu show" onClick={(e) => e.stopPropagation()}>
-            
-            {/* Close Button */}
-            <button className="close-btn" onClick={() => setOpen(false)}>
-              ✕
-            </button>
+          <div className="mobile-menu">
+            <button className="close-btn" onClick={() => setOpen(false)}>✕</button>
 
-            {/* Menu Links */}
-            <Link to="/" onClick={() => setOpen(false)}>
-              Home
-            </Link>
-            <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>
-              Menu
-            </Link>
-            {/* ⭐ ADDED */}
-            <Link to="/checkout" onClick={() => setOpen(false)}>
-              Checkout
-            </Link>
-            <Link to="/about" onClick={() => setOpen(false)}>
-              About Us
-            </Link> 
-
+            <Link to="/" onClick={() => setOpen(false)}>Home</Link>
+            <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>Menu</Link>
+            <Link to="/about" onClick={() => setOpen(false)}>About</Link>
+            <Link to="/checkout" onClick={() => setOpen(false)}>Checkout</Link>
           </div>
         </>
       )}

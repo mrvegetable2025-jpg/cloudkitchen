@@ -30,7 +30,7 @@ export default function AboutPage() {
             textShadow: "0 0 12px rgba(0,150,255,0.8)",
           }}
         >
-          About Thayaar Kitchen
+          About Thaayar Kitchen
         </h1>
 
         <p
@@ -69,7 +69,7 @@ export default function AboutPage() {
               textShadow: "0 0 10px rgba(255,70,150,0.7)",
             }}
           >
-            🌸 Why Choose Thayaar Kitchen?
+            🌸 Why Choose Thaayar Kitchen?
           </h3>
 
           <ul
@@ -104,7 +104,7 @@ export default function AboutPage() {
           Fresh • Hygienic • Traditional South Indian Meals
           <br />
           <br />
-          Thayaar Kitchen delivers “Ammavin Samayal Taste” right to your
+          Thaayar Kitchen delivers “Ammavin Samayal Taste” right to your
           doorstep — bringing the warmth of Amma’s Samayal straight to your
           plate ❤️
         </p>
