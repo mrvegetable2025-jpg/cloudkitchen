@@ -1,26 +1,57 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 export default function DeliveryCheckBanner() {
-  const [showBanner, setShowBanner] = useState(true);
-
   const WHATSAPP = "+918524845927";
 
-  async function getIPLocation() {
+  // --- STEP 1 → Try High Accuracy GPS --------
+  const tryHighAccuracy = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject("NO_GEO");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) =>
+          resolve({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            type: "gps-high",
+          }),
+        (err) => reject(err),
+        { enableHighAccuracy: true, timeout: 6000 }
+      );
+    });
+
+  // --- STEP 2 → Try Battery-Saving GPS (Low Accuracy) ---
+  const tryLowAccuracy = () =>
+    new Promise((resolve, reject) => {
+      if (!navigator.geolocation) return reject("NO_GEO");
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) =>
+          resolve({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            type: "gps-low",
+          }),
+        (err) => reject(err),
+        { enableHighAccuracy: false, timeout: 6000 }
+      );
+    });
+
+  // --- STEP 3 → IP fallback (WORKS ON ALL DEVICES) ----
+  async function tryIPLocation() {
     try {
-      const res = await fetch("https://ipapi.co/json/");
-      const data = await res.json();
-      return {
-        lat: data.latitude,
-        lng: data.longitude,
-      };
+      const r = await fetch("https://ipapi.co/json/");
+      const j = await r.json();
+      return { lat: j.latitude, lng: j.longitude, type: "ip" };
     } catch {
       return null;
     }
   }
 
-  function openWhatsApp(lat, lng) {
+  // --- FINAL ACTION: Open WhatsApp with Map Link ----
+  function openWhatsApp(lat, lng, method) {
     const link = `https://maps.google.com/?q=${lat},${lng}`;
-    const msg = `This is my live location: ${link}. Is delivery possible?`;
+    const msg = `Here is my live location (${method}): ${link} \nIs delivery available?`;
 
     window.open(
       `https://wa.me/${WHATSAPP.replace("+", "")}?text=${encodeURIComponent(
@@ -28,53 +59,36 @@ export default function DeliveryCheckBanner() {
       )}`,
       "_blank"
     );
-
-    // Keep banner, don't hide permanently
-    // setShowBanner(false);
   }
 
-  function handleCheckLocation() {
-    if (!navigator.geolocation) {
-      alert("Location services not supported — using network location.");
-      fallbackToIP();
+  // --- MAIN FUNCTION HANDLING ALL FALLBACKS ---
+  async function handleCheckLocation() {
+    // 1) Try high accuracy GPS
+    try {
+      const pos = await tryHighAccuracy();
+      openWhatsApp(pos.lat, pos.lng, "GPS High Accuracy");
+      return;
+    } catch (e) {
+      console.warn("High accuracy failed → Trying low accuracy", e);
+    }
+
+    // 2) Try low accuracy GPS
+    try {
+      const pos = await tryLowAccuracy();
+      openWhatsApp(pos.lat, pos.lng, "GPS Low Accuracy");
+      return;
+    } catch (e) {
+      console.warn("Low accuracy failed → Trying IP", e);
+    }
+
+    // 3) Final fallback (IP)
+    const ip = await tryIPLocation();
+    if (ip) {
+      openWhatsApp(ip.lat, ip.lng, "Network/IP");
       return;
     }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        openWhatsApp(pos.coords.latitude, pos.coords.longitude);
-      },
-      async (err) => {
-        console.warn("High accuracy failed:", err);
-
-        // Try AGAIN with low accuracy
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            openWhatsApp(pos.coords.latitude, pos.coords.longitude);
-          },
-          async () => {
-            // Final fallback → IP based location
-            const ipLoc = await getIPLocation();
-            if (ipLoc) {
-              openWhatsApp(ipLoc.lat, ipLoc.lng);
-            } else {
-              alert("Unable to get your location. Please turn on GPS.");
-            }
-          },
-          { enableHighAccuracy: false, timeout: 8000 }
-        );
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }
-
-  async function fallbackToIP() {
-    const ipLoc = await getIPLocation();
-    if (ipLoc) {
-      openWhatsApp(ipLoc.lat, ipLoc.lng);
-    } else {
-      alert("Unable to determine location.");
-    }
+    alert("Unable to detect your location. Please enable GPS.");
   }
 
   return (
@@ -82,7 +96,9 @@ export default function DeliveryCheckBanner() {
       <div style={styles.banner}>
         <div style={styles.left}>
           <span style={styles.icon}>📍</span>
-          <span style={styles.text}>Check Delivery Availability for Your Location</span>
+          <span style={styles.text}>
+            Check Delivery Availability for Your Location
+          </span>
         </div>
 
         <button style={styles.btn} onClick={handleCheckLocation}>
@@ -98,7 +114,6 @@ const styles = {
     marginTop: "10px",
     animation: "fadeSlide 0.7s ease",
   },
-
   banner: {
     width: "100%",
     padding: "14px 20px",
@@ -106,33 +121,23 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-
     background: "rgba(0, 122, 255, 0.12)",
     backdropFilter: "blur(14px)",
     border: "1px solid rgba(0, 150, 255, 0.35)",
     boxShadow: "0 0 28px rgba(0,140,255,0.25)",
-
     color: "#dff2ff",
   },
-
-  left: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-  },
-
+  left: { display: "flex", alignItems: "center", gap: "10px" },
   icon: {
     fontSize: "23px",
     filter: "drop-shadow(0 0 6px rgba(0,150,255,0.8))",
   },
-
   text: {
     fontSize: "1rem",
     fontWeight: "600",
     letterSpacing: "0.3px",
     textShadow: "0 0 8px rgba(0,150,255,0.6)",
   },
-
   btn: {
     background: "linear-gradient(90deg,#3b82f6,#1e40af)",
     color: "#fff",

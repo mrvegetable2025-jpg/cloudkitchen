@@ -5,7 +5,6 @@ import { useCart } from "../context/CartContext";
 import { parseCSV } from "../utils/csvParser";
 import { upcomingDates } from "../utils/date";
 
-// --- Format countdown (h m)
 function formatCountdown(hoursLeft) {
   if (hoursLeft <= 0) return null;
   const totalMinutes = Math.floor(hoursLeft * 60);
@@ -19,9 +18,9 @@ export default function OrdersPage() {
   const [searchParams] = useSearchParams();
   const meal = (searchParams.get("meal") || "lunch").toLowerCase();
   const [menuItems, setMenuItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+ const [loading, setLoading] = useState(true);
 
-  // LOAD CSV MENU
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -39,7 +38,7 @@ export default function OrdersPage() {
           isActive: ((r.isActive || "true").toLowerCase() === "true"),
           day: (r.day || r.availableDays || "").toLowerCase(),
           imageUrl: r.imageUrl,
-          stockAvailability: (r.stockAvailability || "in").toLowerCase(),   // ⭐ NEW STOCK COLUMN
+          stockAvailability: (r.stockAvailability || "in").toLowerCase(),
         }));
 
         setMenuItems(parsed.filter((p) => p.category === meal && p.isActive));
@@ -61,11 +60,10 @@ export default function OrdersPage() {
       </div>
     );
 
-  // Build upcoming dates and **exclude Saturday & Sunday**
   const upcomingAll = upcomingDates(7);
   const upcoming = upcomingAll.filter((d) => {
     const dayIndex = new Date(d.iso).getDay();
-    return dayIndex !== 0 && dayIndex !== 6; // Sun=0, Sat=6
+    return dayIndex !== 0 && dayIndex !== 6;
   });
 
   const daysWithItems = upcoming
@@ -118,23 +116,44 @@ export default function OrdersPage() {
 
             <div className="grid">
               {items.map((it) => {
-                const deliveryStart = new Date(d.iso);
-                deliveryStart.setHours(11, 0, 0, 0);
-
                 let isDeliveryClosed = false;
                 let countdownText = "";
 
-                if ((it.category || "").toLowerCase() === "lunch") {
+                const deliveryStart = new Date(d.iso);
+                deliveryStart.setHours(11, 0, 0, 0);
+
+                const category = (it.category || "").toLowerCase();
+
+                // ⭐⭐⭐ LUNCH CLOSING TIME ⭐⭐⭐
+                if (category === "lunch") {
                   const now = Date.now();
                   const diffHours = (deliveryStart.getTime() - now) / 3600000;
-                  const hoursLeftToClose = diffHours - 14;
+
+                  const hoursLeftToClose = diffHours - 14; // 14 hrs before delivery
                   isDeliveryClosed = hoursLeftToClose <= 0;
+
                   countdownText = isDeliveryClosed
                     ? "Delivery Closed"
                     : `Order Ends in ${formatCountdown(hoursLeftToClose)}`;
                 }
 
-                // ⭐ NEW — STOCK CHECK
+                // ⭐⭐⭐ SNACKS CLOSING TIME (Same experience as lunch) ⭐⭐⭐
+                if (category === "snacks") {
+                  const now = Date.now();
+
+                  const snackStart = new Date(d.iso);
+                  snackStart.setHours(16, 0, 0, 0); // 4 PM
+
+                  const diffHours = (snackStart.getTime() - now) / 3600000;
+                  const hoursLeftToClose = diffHours - 14;
+
+                  isDeliveryClosed = hoursLeftToClose <= 0;
+
+                  countdownText = isDeliveryClosed
+                    ? "Delivery Closed"
+                    : `Order Ends in ${formatCountdown(hoursLeftToClose)}`;
+                }
+
                 const isOutOfStock = it.stockAvailability === "out";
 
                 return (
@@ -147,7 +166,6 @@ export default function OrdersPage() {
                       opacity: isOutOfStock ? 0.6 : 1,
                     }}
                   >
-                    {/* ⭐ NEW OUT OF STOCK BADGE */}
                     {isOutOfStock && (
                       <div
                         style={{
@@ -191,11 +209,15 @@ export default function OrdersPage() {
                       <h3>{it.name}</h3>
                       <p>{it.description || "No description"}</p>
 
+                      {/* Fixed delivery slot for lunch/snacks */}
                       <div style={{ fontSize: 12, color: "#9fbbe0" }}>
-                        Delivery Slot: 11:00 AM – 01:00 PM
+                        {category === "snacks"
+                          ? "Delivery Slot: 04:00 PM – 06:00 PM"
+                          : "Delivery Slot: 11:00 AM – 01:00 PM"}
                       </div>
 
-                      {(it.category || "").toLowerCase() === "lunch" && (
+                      {/* ⭐ Countdown for both lunch + snacks */}
+                      {["lunch", "snacks"].includes(category) && (
                         <div
                           style={{
                             fontSize: 12,
@@ -205,12 +227,6 @@ export default function OrdersPage() {
                           }}
                         >
                           {countdownText}
-                        </div>
-                      )}
-
-                      {isDeliveryClosed && (
-                        <div style={{ fontSize: 12, color: "#f59e0b", marginBottom: 8 }}>
-                          Delivery unavailable — booking accepted.
                         </div>
                       )}
 
