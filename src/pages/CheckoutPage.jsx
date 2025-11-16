@@ -6,9 +6,12 @@ const STORAGE_KEY = "Thaayar Kitchen_user";
 
 export default function CheckoutPage() {
   const { cart, total, updateQty, removeFromCart, clearCart } = useCart();
-  const [verified, setVerified] = useState(false); 
+  const [verified, setVerified] = useState(false);
   const [slot, setSlot] = useState("11:00 AM – 01:00 PM");
   const [user, setUser] = useState(null);
+
+  const [paymentClicked, setPaymentClicked] = useState(false); // ⭐ added
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent); // ⭐ added
 
   const WHATSAPP_NUM = import.meta.env.VITE_WHATSAPP_NUMBER;
   const STORE_NAME = import.meta.env.VITE_STORE_NAME || "Thaayar Kitchen";
@@ -39,15 +42,22 @@ export default function CheckoutPage() {
     let itemsText = "";
 
     Object.keys(grouped).forEach((day) => {
-      const dateLabel = new Date(grouped[day][0].deliveryDate).toLocaleDateString();
+      const dateLabel = new Date(
+        grouped[day][0].deliveryDate
+      ).toLocaleDateString();
+
       itemsText += `${day} (${dateLabel}):\n`;
+
       grouped[day].forEach((i) => {
         itemsText += `- ${i.qty || 1}x ${i.name}\n`;
       });
+
       itemsText += "\n";
     });
 
-    const userText = user ? `${user.name}\n${user.phone}\n${user.address}\n\n` : "";
+    const userText = user
+      ? `${user.name}\n${user.phone}\n${user.address}\n\n`
+      : "";
 
     const msg = encodeURIComponent(
 `${STORE_NAME}
@@ -72,7 +82,12 @@ Delivery Slot: ${slot}`
       Phone: user?.phone || "",
       Address: user?.address || "",
       "Order Items": cart
-        .map((i) => `${i.qty || 1}x ${i.name} (${new Date(i.deliveryDate).toLocaleDateString()})`)
+        .map(
+          (i) =>
+            `${i.qty || 1}x ${i.name} (${new Date(
+              i.deliveryDate
+            ).toLocaleDateString()})`
+        )
         .join(" | "),
       Amount: total,
       Slot: slot,
@@ -96,6 +111,11 @@ Delivery Slot: ${slot}`
     if (!user)
       return alert("Please sign up before confirming your payment.");
 
+    // ⭐ MOBILE → Only allow if Pay button clicked
+    if (isMobile && !paymentClicked) {
+      return alert("Please click Pay Securely first.");
+    }
+
     setVerified(true);
     alert("Payment confirmed — Now you can place order.");
   }
@@ -111,11 +131,9 @@ Delivery Slot: ${slot}`
     setTimeout(() => (window.location.href = "/success"), 900);
   }
 
-  function universalUpiLink(amount) {
-    const amt = encodeURIComponent(amount);
-    const pa = encodeURIComponent("9841857762@ybl");
-    const pn = encodeURIComponent("Thaayar Kitchen");
-    return `https://pay.google.com/gp/p/ui/pay?pa=${pa}&pn=${pn}&am=${amt}&cu=INR`;
+  // ⭐ FINAL MERCHANT UPI LINK
+  function upiLink(amount) {
+    return `upi://pay?pa=9841857762@ybl&pn=Thaayar%20Kitchen&am=${amount}&cu=INR`;
   }
 
   return (
@@ -140,38 +158,56 @@ Delivery Slot: ${slot}`
 
           {cart.map((it) => (
             <div className="glass-card checkout-card-new" key={it.id}>
-              <img src={it.imageUrl || "/no-image.png"} className="checkout-img-new" alt={it.name} />
+              <img
+                src={it.imageUrl || "/no-image.png"}
+                className="checkout-img-new"
+                alt={it.name}
+              />
 
               <div className="checkout-content">
                 <div className="checkout-title-new">{it.name}</div>
 
-                <div className="checkout-price-line">₹{it.price} × {it.qty || 1}</div>
+                <div className="checkout-price-line">
+                  ₹{it.price} × {it.qty || 1}
+                </div>
 
                 <div className="checkout-dayTag">
-                  {it.dayLabel} • {new Date(it.deliveryDate).toLocaleDateString()}
+                  {it.dayLabel} •{" "}
+                  {new Date(it.deliveryDate).toLocaleDateString()}
                 </div>
 
                 <div className="checkout-cat">Category: {it.category}</div>
 
                 <div className="qty-controls-modern">
-                  <button onClick={() => updateQty(it.id, (it.qty || 1) - 1)}>−</button>
+                  <button onClick={() => updateQty(it.id, (it.qty || 1) - 1)}>
+                    −
+                  </button>
                   <span>{it.qty || 1}</span>
-                  <button onClick={() => updateQty(it.id, (it.qty || 1) + 1)}>+</button>
+                  <button onClick={() => updateQty(it.id, (it.qty || 1) + 1)}>
+                    +
+                  </button>
                 </div>
 
-                <button className="remove-btn-modern" onClick={() => removeFromCart(it.id)}>
+                <button
+                  className="remove-btn-modern"
+                  onClick={() => removeFromCart(it.id)}
+                >
                   Remove
                 </button>
               </div>
 
-              <div className="checkout-total-new">₹{it.price * (it.qty || 1)}</div>
+              <div className="checkout-total-new">
+                ₹{it.price * (it.qty || 1)}
+              </div>
             </div>
           ))}
         </div>
 
+        {/* SUMMARY */}
         <div className="checkout-summary glass-card better-summary">
           <h2 className="summary-title">
-            Order Summary <span className="summary-sub">(Includes delivery)</span>
+            Order Summary{" "}
+            <span className="summary-sub">(Includes delivery)</span>
           </h2>
 
           <div className="summary-row">
@@ -180,37 +216,45 @@ Delivery Slot: ${slot}`
           </div>
 
           <label className="label">Delivery Slot</label>
-          <select className="select modern-select" value={slot} onChange={(e) => setSlot(e.target.value)}>
-            {availableSlots().map((s) => <option key={s} value={s}>{s}</option>)}
+          <select
+            className="select modern-select"
+            value={slot}
+            onChange={(e) => setSlot(e.target.value)}
+          >
+            {availableSlots().map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
           </select>
 
           <h3 className="qr-heading">Scan to Pay OR Tap to Pay</h3>
 
           <div className="qr-card">
             <img src="/gpay-qr.png" className="qr-img" alt="Scan to pay" />
-            <p className="qr-note"></p>
           </div>
 
+          {/* PAYMENT BUTTON */}
           <a
-            href={universalUpiLink(total)}
+            href={upiLink(total)}
             className="btn-modern-pay"
             onClick={(e) => {
               if (!user) {
                 e.preventDefault();
                 alert("Please sign up before making payment.");
+              } else {
+                if (isMobile) setPaymentClicked(true); // ⭐ mobile logic
               }
             }}
             style={{
               opacity: user ? 1 : 0.4,
               pointerEvents: user ? "auto" : "none",
-              textDecoration: "none",
-              display: "inline-block",
-              textAlign: "center"
             }}
           >
             💳 Pay Securely
           </a>
 
+          {/* CONFIRM PAYMENT */}
           <button
             className="btn-confirm"
             onClick={handleConfirmPayment}
@@ -223,19 +267,18 @@ Delivery Slot: ${slot}`
             ✔ I Have Completed Payment
           </button>
 
-          {/* 🔥 ONLY THIS PART UPDATED: BLINKING SIGN-UP BUTTON */}
+          {/* SIGNUP */}
           {!user && (
             <button
               className="btn-outline"
               onClick={() => (window.location.href = "/auth")}
-              title="Sign up is required so we can deliver to your address"
               style={{
                 borderColor: "rgba(34,197,94,0.7)",
                 color: "#a3ffbf",
                 animation: "pulseGreen 1.2s infinite ease-in-out",
                 marginTop: 10,
-                fontWeight: "600",
-                background: "linear-gradient(90deg, rgba(0,0,0,0.3), rgba(0,0,0,0.6))",
+                background:
+                  "linear-gradient(90deg, rgba(0,0,0,0.25), rgba(0,0,0,0.55))",
               }}
             >
               ✨ Sign up to Continue
@@ -248,37 +291,27 @@ Delivery Slot: ${slot}`
             onClick={handleSend}
             style={{
               opacity: !verified || !user ? 0.4 : 1,
-              pointerEvents: !verified || !user ? "none" : "auto",
-              marginTop: 12
+              marginTop: 12,
             }}
           >
             📩 Send Order via WhatsApp
           </button>
 
-          <button className="btn-outline remove" onClick={clearCart} style={{ marginTop: 10 }}>
+          <button
+            className="btn-outline remove"
+            onClick={clearCart}
+            style={{ marginTop: 10 }}
+          >
             Clear Order
           </button>
         </div>
       </div>
 
-      {/* 🔥 Updated Animation */}
       <style>{`
         @keyframes pulseGreen {
-          0% { 
-            box-shadow: 0 0 3px rgba(34,197,94,0.4);
-            transform: scale(1);
-            opacity: 0.75;
-          }
-          50% { 
-            box-shadow: 0 0 25px rgba(34,197,94,1);
-            transform: scale(1.07);
-            opacity: 1;
-          }
-          100% { 
-            box-shadow: 0 0 3px rgba(34,197,94,0.4);
-            transform: scale(1);
-            opacity: 0.75;
-          }
+          0% { box-shadow: 0 0 3px rgba(34,197,94,0.4); transform: scale(1); opacity: 0.75; }
+          50% { box-shadow: 0 0 25px rgba(34,197,94,1); transform: scale(1.07); opacity: 1; }
+          100% { box-shadow: 0 0 3px rgba(34,197,94,0.4); transform: scale(1); opacity: 0.75; }
         }
       `}</style>
     </div>

@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 
 export default function DeliveryCheckBanner() {
-  const [showBanner, setShowBanner] = useState(false);
-
-  useEffect(() => {
-    const done = localStorage.getItem("deliveryCheckDone");
-    if (!done) setShowBanner(true);
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleCheckLocation = () => {
     if (!navigator.geolocation) {
       alert("Location not supported.");
       return;
     }
+
+    setLoading(true);
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -21,18 +18,18 @@ export default function DeliveryCheckBanner() {
 
         const mapLink = `https://maps.google.com/?q=${lat},${lng}`;
         const whatsapp = "+918524845927";
-        const message = `This is my accurate GPS location: ${mapLink}. Is delivery possible?`;
+        const message = `This is my accurate GPS location: ${mapLink}. Is delivery available for me?`;
 
         window.open(
           `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`,
           "_blank"
         );
 
-        localStorage.setItem("deliveryCheckDone", "true");
-        setShowBanner(false);
+        setLoading(false);
       },
       (err) => {
-        alert("Turn on GPS / High accuracy mode for more accurate location.");
+        setLoading(false);
+        alert("Enable GPS / High Accuracy mode.");
       },
       {
         enableHighAccuracy: true,
@@ -41,8 +38,6 @@ export default function DeliveryCheckBanner() {
       }
     );
   };
-
-  if (!showBanner) return null;
 
   return (
     <div style={styles.wrapper}>
@@ -54,8 +49,8 @@ export default function DeliveryCheckBanner() {
           </span>
         </div>
 
-        <button style={styles.btn} onClick={handleCheckLocation}>
-          Check Now
+        <button style={styles.btn} onClick={handleCheckLocation} disabled={loading}>
+          {loading ? "Checking..." : "Check Now"}
         </button>
       </div>
     </div>
@@ -75,12 +70,10 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-
     background: "rgba(0, 122, 255, 0.12)",
     backdropFilter: "blur(14px)",
     border: "1px solid rgba(0, 150, 255, 0.35)",
     boxShadow: "0 0 28px rgba(0,140,255,0.25)",
-
     color: "#dff2ff",
   },
 
@@ -115,5 +108,3 @@ const styles = {
     transition: "0.25s",
   },
 };
-
-/* Add this in index.css or global CSS */
