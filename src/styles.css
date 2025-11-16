@@ -1126,3 +1126,15 @@ body {
   50% { opacity: 1; transform: translateY(-2px); }
   100% { opacity: 0.45; transform: translateY(0); }
 }
+/* FOOD CARD MICRO ANIMATIONS */
+.food-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+@media (min-width: 768px) {
+  .food-card:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 0 18px rgba(0, 150, 255, 0.30);
+    border-radius: 18px;
+  }
+}

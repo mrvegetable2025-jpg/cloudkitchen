@@ -60,7 +60,7 @@ export default function OrdersPage() {
       </div>
     );
 
-  // NEXT 7 DAYS (skip weekend)
+  // UPCOMING 7 DAY FILTER
   const upcomingAll = upcomingDates(7);
   const upcoming = upcomingAll.filter((d) => {
     const dow = new Date(d.iso).getDay();
@@ -72,12 +72,10 @@ export default function OrdersPage() {
       menuItems.some((mi) => {
         if (!mi.day) return false;
         const allowed = mi.day
-          .split(/[\s,;|]+/)
-          .map((x) => x.trim().slice(0, 3).toLowerCase());
+          .split(/[\s,;|]+/).map((x) => x.trim().slice(0, 3).toLowerCase());
         const wk = new Date(d.iso)
           .toLocaleDateString(undefined, { weekday: "short" })
-          .slice(0, 3)
-          .toLowerCase();
+          .slice(0, 3).toLowerCase();
         return allowed.includes(wk);
       })
     )
@@ -96,68 +94,59 @@ export default function OrdersPage() {
       {daysWithItems.map((d) => {
         const items = menuItems.filter((mi) => {
           const allowed = (mi.day || "")
-            .split(/[\s,;|]+/)
-            .map((x) => x.trim().slice(0, 3).toLowerCase());
+            .split(/[\s,;|]+/).map((x) => x.trim().slice(0, 3).toLowerCase());
           const wk = new Date(d.iso)
             .toLocaleDateString(undefined, { weekday: "short" })
-            .slice(0, 3)
-            .toLowerCase();
+            .slice(0, 3).toLowerCase();
           return allowed.includes(wk);
         });
 
-        const label = new Date(d.iso).toLocaleDateString(undefined, {
+        const labelFull = new Date(d.iso).toLocaleDateString(undefined, {
           weekday: "long",
           month: "short",
           day: "numeric",
         });
 
         return (
-          <section key={d.iso} style={{ marginBottom: 28 }}>
-            <h3 style={{ marginBottom: 12 }}>{label}</h3>
+          <section key={d.iso} style={{ marginBottom: 38 }}>
+
+            {/* ⭐✨ FLOATING GLASS DATE TILE (Style C) */}
+            <div className="date-tile fade-soft">
+              <span className="date-icon">📅</span>
+              <span>{labelFull}</span>
+            </div>
 
             <div className="grid">
               {items.map((it) => {
                 let isClosed = false;
                 let countdownText = "";
-
                 const category = it.category;
 
-                // LUNCH LOGIC (closing 14 hrs before 11 AM)
+                // LUNCH CUT-OFF
                 if (category === "lunch") {
                   const delivery = new Date(d.iso);
                   delivery.setHours(11, 0, 0, 0);
-
-                  const now = Date.now();
-                  const diffHours = (delivery.getTime() - now) / 3600000;
-
+                  const diffHours = (delivery.getTime() - Date.now()) / 3600000;
                   const hoursLeftToClose = diffHours - 14;
-
                   isClosed = hoursLeftToClose <= 0;
-
                   countdownText = isClosed
                     ? "Order Closed"
                     : `Order Ends in ${formatCountdown(hoursLeftToClose)}`;
                 }
 
-                // SNACKS LOGIC (closing 14 hrs before 4 PM)
+                // SNACKS CUT-OFF
                 if (category === "snacks") {
                   const delivery = new Date(d.iso);
-                  delivery.setHours(16, 0, 0, 0); // 4 PM
-
-                  const now = Date.now();
-                  const diffHours = (delivery.getTime() - now) / 3600000;
-
+                  delivery.setHours(16, 0, 0, 0);
+                  const diffHours = (delivery.getTime() - Date.now()) / 3600000;
                   const hoursLeftToClose = diffHours - 14;
-
                   isClosed = hoursLeftToClose <= 0;
-
                   countdownText = isClosed
                     ? "Order Closed"
                     : `Order Ends in ${formatCountdown(hoursLeftToClose)}`;
                 }
 
                 const isOutOfStock = it.stockAvailability === "out";
-
                 const isBlocked = isClosed || isOutOfStock;
 
                 return (
@@ -170,6 +159,7 @@ export default function OrdersPage() {
                       opacity: isBlocked ? 0.6 : 1,
                     }}
                   >
+                    {/* Stock & Closed Tags */}
                     {isBlocked && (
                       <div
                         style={{
@@ -191,6 +181,7 @@ export default function OrdersPage() {
                       </div>
                     )}
 
+                    {/* Image */}
                     <div className="card-img-box">
                       <img
                         src={it.imageUrl || "/no-image.png"}
@@ -210,34 +201,28 @@ export default function OrdersPage() {
                           : "Delivery Slot: 11:00 AM – 01:00 PM"}
                       </div>
 
-                      {/* Countdown always shown */}
-                      {["lunch", "snacks"].includes(category) && (
-                        <div
-                          style={{
-                            fontSize: 12,
-                            marginTop: 6,
-                            marginBottom: 6,
-                            color: isClosed ? "red" : "#4ade80",
-                          }}
-                        >
-                          {countdownText}
-                        </div>
-                      )}
+                      <div
+                        style={{
+                          fontSize: 12,
+                          marginTop: 6,
+                          marginBottom: 6,
+                          color: isClosed ? "red" : "#4ade80",
+                        }}
+                      >
+                        {countdownText}
+                      </div>
 
                       <div className="card-actions">
                         <div className="price">₹{it.price}</div>
-
                         <button
                           className="btn-primary"
                           disabled={isBlocked}
                           style={{
                             opacity: isBlocked ? 0.4 : 1,
                             cursor: isBlocked ? "not-allowed" : "pointer",
-                            pointerEvents: isBlocked ? "none" : "auto",
                           }}
                           onClick={() => {
                             if (isBlocked) return;
-
                             addToCart({
                               id: it.id,
                               name: it.name,
@@ -246,7 +231,6 @@ export default function OrdersPage() {
                               category: it.category,
                               deliveryDate: d.iso,
                               deliveryAvailable: !isClosed,
-                              day: d.weekday,
                               dayLabel: new Date(d.iso).toLocaleDateString(
                                 undefined,
                                 { weekday: "long" }
@@ -254,10 +238,8 @@ export default function OrdersPage() {
                             });
                           }}
                         >
-                          {isOutOfStock
-                            ? "Out of Stock"
-                            : isClosed
-                            ? "Order Closed"
+                          {isBlocked
+                            ? (isOutOfStock ? "Out of Stock" : "Order Closed")
                             : `Add to cart (for ${new Date(
                                 d.iso
                               ).toLocaleDateString()})`}
@@ -271,6 +253,46 @@ export default function OrdersPage() {
           </section>
         );
       })}
+
+      {/* DATE TILE CSS */}
+      <style>{`
+        .date-tile {
+          width: fit-content;
+          margin: 14px auto 26px;
+          padding: 10px 22px;
+          border-radius: 20px;
+          background: rgba(255,255,255,0.08);
+          backdrop-filter: blur(14px);
+          border: 1px solid rgba(255,255,255,0.20);
+          color: #bde0ff;
+          font-size: 1.05rem;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          box-shadow: 0 0 18px rgba(0,160,255,0.28);
+          animation: glowPulse 2.2s infinite ease-in-out;
+        }
+
+        .date-icon {
+          font-size: 1.2rem;
+        }
+
+        .fade-soft {
+          animation: fadeInSoft 0.7s ease-out;
+        }
+
+        @keyframes fadeInSoft {
+          from { opacity: 0; transform: translateY(6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes glowPulse {
+          0% { box-shadow: 0 0 12px rgba(0,160,255,0.25); }
+          50% { box-shadow: 0 0 22px rgba(0,160,255,0.45); }
+          100% { box-shadow: 0 0 12px rgba(0,160,255,0.25); }
+        }
+      `}</style>
     </div>
   );
 }
