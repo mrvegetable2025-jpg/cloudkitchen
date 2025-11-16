@@ -6,28 +6,38 @@ export default function ReviewsPage() {
   const [rating, setRating] = useState(5);
   const [review, setReview] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   const REVIEWS_WEBHOOK = import.meta.env.VITE_REVIEWS_WEBHOOK;
-  const REVIEWS_JSON = import.meta.env.VITE_REVIEWS_SHEET_JSON; // Published JSON link
+  const REVIEWS_JSON = import.meta.env.VITE_REVIEWS_SHEET_JSON;
 
+  // 🔄 Auto-fetch reviews every 10 seconds
   useEffect(() => {
     if (!REVIEWS_JSON) return;
-    fetch(REVIEWS_JSON)
-      .then((res) => res.json())
-      .then((data) => setReviews(data))
-      .catch(() => {});
+
+    const fetchReviews = () => {
+      fetch(REVIEWS_JSON)
+        .then(res => res.json())
+        .then(data => {
+          setReviews(data.reverse()); // newest first
+          setLoadingReviews(false);
+        })
+        .catch(() => setLoadingReviews(false));
+    };
+
+    fetchReviews();                    // Initial load
+    const interval = setInterval(fetchReviews, 8000); // Auto-refresh
+
+    return () => clearInterval(interval);
   }, []);
 
+  // ⬆ Submitting a Review
   async function submitReview() {
     if (!name || !review) return alert("Please enter your name & review!");
 
     setLoading(true);
 
-    const payload = {
-      name,
-      rating,
-      review,
-    };
+    const payload = { name, rating, review };
 
     try {
       await fetch(REVIEWS_WEBHOOK, {
@@ -35,12 +45,15 @@ export default function ReviewsPage() {
         body: JSON.stringify(payload),
       });
 
-      alert("✨ Thank you! Your review has been submitted.");
+      alert("✨ Thank you! Your review has been added!");
+
       setName("");
       setRating(5);
       setReview("");
+
+      setTimeout(() => window.location.reload(), 500);
     } catch {
-      alert("❌ Unable to submit review. Try again later.");
+      alert("❌ Failed to submit review. Try again!");
     }
 
     setLoading(false);
@@ -50,8 +63,8 @@ export default function ReviewsPage() {
     <div className="reviews-wrapper">
       <h1 className="title-main">⭐ Customer Reviews</h1>
 
-      {/* Form */}
-      <div className="glass-card review-form">
+      {/* Write Review Form */}
+      <div className="glass-card review-form fade-soft">
         <h2 className="form-title">Write a Review</h2>
 
         <input
@@ -81,7 +94,7 @@ export default function ReviewsPage() {
           onChange={(e) => setReview(e.target.value)}
         />
 
-        <button
+        <button 
           className="btn-submit"
           onClick={submitReview}
           disabled={loading}
@@ -90,12 +103,14 @@ export default function ReviewsPage() {
         </button>
       </div>
 
-      {/* Review list */}
+      {/* Reviews List */}
       <h2 className="reviews-subtitle">💬 What Customers Say</h2>
+
+      {loadingReviews && <p className="loading-text">Loading reviews...</p>}
 
       <div className="reviews-list">
         {reviews.map((rev, i) => (
-          <div key={i} className="glass-card review-box fade-in">
+          <div key={i} className="glass-card review-box fade-soft">
             <div className="review-name">
               {rev.name} • <span className="star">{rev.rating}⭐</span>
             </div>
@@ -104,14 +119,14 @@ export default function ReviewsPage() {
         ))}
       </div>
 
-      {/* STYLE */}
       <style>
         {`
-        /* PAGE BG */
+        /* Background */
         .reviews-wrapper {
           padding: 30px 15px;
-          background: radial-gradient(circle at top, #0a1a2b, #030712 70%);
+          background: radial-gradient(circle at top, #0a1a2b, #030712 75%);
           min-height: 100vh;
+          color: #e8f4ff;
         }
 
         .title-main {
@@ -120,36 +135,45 @@ export default function ReviewsPage() {
           font-size: 2rem;
           margin-bottom: 25px;
           font-weight: 700;
-          text-shadow: 0 0 12px rgba(0,150,255,0.7);
+          text-shadow: 0 0 15px rgba(0,150,255,0.6);
         }
 
-        /* GLASS FORM */
+        /* Fade Animation */
+        .fade-soft {
+          animation: fadeSoft 0.7s ease-in-out;
+        }
+        @keyframes fadeSoft {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Review Form */
         .review-form {
           padding: 22px;
           border-radius: 18px;
-          background: rgba(255,255,255,0.06);
-          backdrop-filter: blur(14px);
-          border: 1px solid rgba(255,255,255,0.15);
-          box-shadow: 0 0 25px rgba(0,120,255,0.25);
-          margin-bottom: 40px;
+          background: rgba(255, 255, 255, 0.06);
+          backdrop-filter: blur(15px);
+          border: 1px solid rgba(255,255,255,0.18);
+          box-shadow: 0 0 18px rgba(0, 140, 255, 0.20);
+          margin-bottom: 35px;
         }
 
         .form-title {
           color: #8ecaff;
           font-size: 1.4rem;
-          margin-bottom: 10px;
           font-weight: 600;
+          margin-bottom: 10px;
         }
 
-        .input-modern, .textarea {
+        .input-modern, .textarea, .select {
           width: 100%;
           padding: 12px;
           margin: 10px 0;
           border-radius: 10px;
-          border: none;
           background: rgba(255,255,255,0.15);
-          color: white;
+          border: none;
           outline: none;
+          color: white;
           font-size: 1rem;
         }
 
@@ -158,22 +182,18 @@ export default function ReviewsPage() {
           resize: none;
         }
 
-        .select {
-          margin-bottom: 10px;
-        }
-
         .btn-submit {
           width: 100%;
-          margin-top: 10px;
           padding: 12px;
+          margin-top: 10px;
           border: none;
           border-radius: 10px;
           background: linear-gradient(90deg, #3ba9ff, #005eff);
-          color: #fff;
-          font-size: 1.2rem;
+          color: white;
+          font-size: 1.15rem;
           font-weight: 600;
           cursor: pointer;
-          transition: 0.3s;
+          transition: 0.25s;
         }
 
         .btn-submit:hover {
@@ -181,11 +201,11 @@ export default function ReviewsPage() {
           transform: scale(1.02);
         }
 
-        /* REVIEWS LIST */
+        /* Reviews List */
         .reviews-subtitle {
-          margin: 20px 0 10px;
-          color: #9bd1ff;
+          margin-top: 20px;
           text-align: center;
+          color: #9bd1ff;
           font-size: 1.4rem;
         }
 
@@ -193,21 +213,21 @@ export default function ReviewsPage() {
           display: flex;
           flex-direction: column;
           gap: 15px;
+          margin-top: 15px;
         }
 
         .review-box {
           padding: 18px;
           border-radius: 18px;
           background: rgba(255,255,255,0.08);
-          border: 1px solid rgba(255,255,255,0.18);
-          backdrop-filter: blur(12px);
-          box-shadow: 0 0 20px rgba(0,140,255,0.25);
-          animation: fadeIn 0.7s ease-in-out;
+          border: 1px solid rgba(255,255,255,0.16);
+          backdrop-filter: blur(14px);
+          box-shadow: 0 0 18px rgba(0,140,255,0.22);
         }
 
         .review-name {
           font-size: 1.2rem;
-          font-weight: 700;
+          font-weight: 600;
           color: #7bc9ff;
         }
 
@@ -218,14 +238,13 @@ export default function ReviewsPage() {
         .review-text {
           margin-top: 5px;
           font-size: 1rem;
-          opacity: 0.85;
-          color: #e8f4ff;
+          opacity: 0.9;
         }
 
-        /* FADE ANIMATION */
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
+        .loading-text {
+          color: #99cfff;
+          text-align: center;
+          margin-top: 10px;
         }
         `}
       </style>

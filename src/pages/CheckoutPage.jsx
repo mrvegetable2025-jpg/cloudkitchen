@@ -216,14 +216,70 @@ Delivery Slot: ${slot}
             ))}
           </select>
 
-          <h3 className="qr-heading blink-scan">🔵 Scan to Pay</h3>
+          {/* 🔵 NEW PROFESSIONAL QR SECTION */}
+          <h3 className="qr-heading" style={{ marginTop: 20, marginBottom: 10 }}>
+            Scan & Pay Securely
+          </h3>
 
-<div className="qr-glass-wrapper">
-  <div className="qr-glass-frame">
-    <img src="/gpay-qr.png" className="qr-img" alt="Scan to Pay" />
+          <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingTop: 10,
+    paddingBottom: 20,
+  }}
+>
+  <div
+    style={{
+      padding: 22,
+      borderRadius: "22px",
+      backdropFilter: "blur(14px)",
+      background: "rgba(255, 255, 255, 0.08)",
+      border: "1px solid rgba(255, 255, 255, 0.18)",
+      boxShadow: "0 0 22px rgba(0,0,0,0.35)",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+    }}
+  >
+    <img
+      src="/gpay-qr.png"
+      alt="Scan to Pay"
+      style={{
+        width: 220,
+        height: 220,
+        objectFit: "contain",   // 🚀 prevents cropping
+        background: "#fff",
+        borderRadius: "16px",
+        padding: "12px",        // ⭐ extra safe space so UPI ID text appears
+      }}
+    />
+
+    <div
+      style={{
+        marginTop: 10,
+        fontSize: "14px",
+        color: "#d9eaff",
+        letterSpacing: "0.3px",
+      }}
+    >
+      
+    </div>
   </div>
 </div>
 
+
+          <p
+            style={{
+              textAlign: "center",
+              color: "#a8c7ff",
+              fontSize: 13,
+              marginTop: 6,
+            }}
+          >
+            Works on GPay • PhonePe • Paytm • BHIM
+          </p>
 
           {/* CONFIRM BUTTON */}
           <button
