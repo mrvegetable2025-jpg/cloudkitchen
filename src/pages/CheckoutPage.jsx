@@ -37,6 +37,7 @@ export default function CheckoutPage() {
     return map;
   }
 
+  // 🟢 WhatsApp message with UPI ID + Tap to Pay link
   function whatsappLink(orderId) {
     const grouped = group(cart);
     let itemsText = "";
@@ -59,6 +60,8 @@ export default function CheckoutPage() {
       ? `${user.name}\n${user.phone}\n${user.address}\n\n`
       : "";
 
+    const upiPayLink = `upi://pay?pa=8524845927@okbizaxis&pn=Thaayar%20Kitchen&am=${total}&cu=INR`;
+
     const msg = encodeURIComponent(
 `${STORE_NAME}
 
@@ -66,11 +69,20 @@ Order ID: ${orderId}
 
 ${userText}Order Details:
 ${itemsText}
-Total: ₹${total}
+Total Amount: ₹${total}
 Delivery Slot: ${slot}
 
+-----------------------------
+
+PAYMENT DETAILS
 UPI ID: 8524845927@okbizaxis
-Please complete payment and send confirmation.`
+
+Tap to Pay:
+${upiPayLink}
+
+-----------------------------
+
+Please complete the payment and send the screenshot here.`
     );
 
     return `https://wa.me/${WHATSAPP_NUM.replace(/\+/g, "")}?text=${msg}`;
@@ -119,7 +131,7 @@ Please complete payment and send confirmation.`
     }
 
     setVerified(true);
-    alert("Payment confirmed — Now you can place order.");
+    alert(" Now you can place order.");
   }
 
   async function handleSend() {
@@ -133,7 +145,7 @@ Please complete payment and send confirmation.`
     setTimeout(() => (window.location.href = "/success"), 900);
   }
 
-  // ⭐ UNIVERSAL WORKING UPI LINK (best & safest)
+  // ⭐ UNIVERSAL UPI PAYMENT LINK
   function upiLink(amount) {
     return `upi://pay?pa=8524845927@okbizaxis&pn=Thaayar%20Kitchen&am=${amount}&cu=INR`;
   }
@@ -205,7 +217,7 @@ Please complete payment and send confirmation.`
           ))}
         </div>
 
-        {/* SUMMARY */}
+        {/* 🔥 SUMMARY */}
         <div className="checkout-summary glass-card better-summary">
           <h2 className="summary-title">
             Order Summary{" "}
@@ -230,10 +242,22 @@ Please complete payment and send confirmation.`
             ))}
           </select>
 
-          <h3 className="qr-heading">Scan to Pay OR Tap to Pay</h3>
+          <h3 className="qr-heading">Scan OR Tap to Pay</h3>
 
-          <div className="qr-card">
-            <img src="/gpay-qr.png" className="qr-img" alt="Scan to pay" />
+          {/* 🔥 QR image tap → UPI App */}
+          <div
+            className="qr-card"
+            onClick={() =>
+              (window.location.href = upiLink(total))
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <img src="/gpay-qr.png" className="qr-img" alt="Tap to pay" />
+            <div
+              style={{ textAlign: "center", color: "#aef", marginTop: "8px" }}
+            >
+              👉 Tap QR to Pay using Google Pay / PhonePe / Paytm
+            </div>
           </div>
 
           {/* PAY BUTTON */}
@@ -256,7 +280,7 @@ Please complete payment and send confirmation.`
             💳 Pay Securely
           </a>
 
-          {/* CONFIRM */}
+          {/* CONFIRM PAYMENT */}
           <button
             className="btn-confirm"
             onClick={handleConfirmPayment}
@@ -269,7 +293,7 @@ Please complete payment and send confirmation.`
             ✔ I Have Completed Payment
           </button>
 
-          {/* SIGNUP */}
+          {/* SIGNUP BUTTON */}
           {!user && (
             <button
               className="btn-outline"
