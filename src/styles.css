@@ -1144,3 +1144,14 @@ body {
   letter-spacing: 0.8px;
   color: #fff;
 }
+.grid {
+  display: grid;
+  justify-content: center;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 350px));
+}
+
+.food-card {
+  max-width: 350px;
+  margin: 0 auto;
+}
