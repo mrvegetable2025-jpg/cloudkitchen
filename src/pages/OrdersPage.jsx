@@ -485,6 +485,96 @@ export default function OrdersPage() {
             padding: 14px 14px 16px;
           }
         }
+          /* FIX: UNIFORM CARD DIMENSIONS */
+.premium-card {
+  width: 308px !important;
+  height: 406px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* FIX: IMAGE FIXED HEIGHT */
+.premium-card .card-img-box {
+  height: 160px !important;
+  min-height: 160px !important;
+  max-height: 160px !important;
+}
+
+/* FIX: DESCRIPTION should not push card down */
+.premium-card .food-desc {
+  height: 45px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* FIX: the grid must center items */
+.grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+/* UNIFORM PREMIUM CARD SIZE */
+.premium-card {
+  width: 340px !important;
+  height: 460px !important;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding-bottom: 10px;
+}
+
+/* FIXED IMAGE SIZE */
+.premium-card .card-img-box {
+  height: 190px !important;
+  min-height: 190px !important;
+  max-height: 190px !important;
+  overflow: hidden;
+}
+
+/* FOOD IMAGE ALWAYS FITS */
+.premium-card .food-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* TITLE – LIMIT TO 2 LINES */
+.premium-card .food-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #e5edff;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* DESCRIPTION – LIMIT TO 2 LINES */
+.premium-card .food-desc {
+  font-size: 0.86rem;
+  color: #9fbbe0;
+  line-height: 1.35;
+  height: 38px; /* FIXED */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ENSURE ICONS + BUTTONS FIT */
+.premium-card .card-actions {
+  margin-top: auto;  /* pushes button to bottom */
+}
+
+/* GRID FIX – CENTER ALL CARDS */
+.grid {
+  display: flex !important;
+  flex-wrap: wrap;
+  gap: 26px;
+  justify-content: center;
+}
+
       `}</style>
     </div>
   );
