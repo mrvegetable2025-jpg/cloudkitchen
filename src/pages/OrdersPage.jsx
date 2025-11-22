@@ -170,7 +170,7 @@ export default function OrdersPage() {
   return (
     <div className="container orders-page">
       <h1 className="page-title">
-        <span>Kitchen Line-Up</span>
+        <span></span>
       </h1>
 
       {daysWithItems.length === 0 && (

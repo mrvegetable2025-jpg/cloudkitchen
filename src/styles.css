@@ -1295,3 +1295,128 @@ body {
   flex-direction: column;
   justify-content: space-between;
 }
+.logo-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-text.eng {
+  font-family: "Zilla Slab", serif; /* or whatever you used */
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.35);
+}
+
+.logo-text.tam {
+  font-family: "Noto Sans Tamil", sans-serif; /* BEST clean Tamil font */
+  font-size: 20px;
+  font-weight: 600;
+  color: #f8d49b; /* gold tint */
+  margin-top: 2px;
+  text-shadow: 0 0 10px rgba(255, 200, 120, 0.4);
+}
+/* HEADER WRAPPER */
+.glass-header {
+  width: 100%;
+  backdrop-filter: blur(10px);
+  background: rgba(4, 16, 36, 0.85);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 999;
+}
+
+.header-inner {
+  max-width: 1300px;
+  margin: auto;
+  padding: 14px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* BRAND ALIGNMENT */
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 58px;
+  height: 58px;
+  border-radius: 12px;
+  object-fit: cover;
+  box-shadow: 0 0 12px rgba(255,255,255,0.15);
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+/* ENGLISH TITLE */
+.brand-en {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 0 20px rgba(255,255,255,0.35);
+}
+
+/* TAMIL TITLE */
+.brand-ta {
+  margin-top: 2px;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: #f5d27b; /* golden tone */
+  text-shadow: 0 0 10px rgba(245,210,120,0.45);
+}
+
+/* DESKTOP NAV */
+.nav-links {
+  display: flex;
+  gap: 34px;
+}
+
+.nav-links a {
+  color: #dbeafe;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: 0.25s;
+}
+
+.nav-links a:hover {
+  color: #ffffff;
+  text-shadow: 0 0 8px #9bcaff;
+}
+
+/* HAMBURGER */
+.hamburger {
+  display: none;
+  cursor: pointer;
+}
+
+.line {
+  width: 26px;
+  height: 3px;
+  margin: 4px;
+  background: white;
+  border-radius: 3px;
+  box-shadow: 0 0 10px white;
+}
+
+/* MOBILE */
+@media (max-width: 880px) {
+  .nav-links {
+    display: none;
+  }
+  .hamburger {
+    display: block;
+  }
+}

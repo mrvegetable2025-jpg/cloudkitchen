@@ -10,10 +10,14 @@ export default function Header() {
     <header className="glass-header">
       <div className="header-inner">
 
-        {/* LOGO + BRAND */}
-        <div className="brand">
+        {/* BRAND BLOCK */}
+        <div className="brand-block">
           <img src={Logo} alt="Logo" className="brand-logo" />
-          <span className="brand-name lugrasimo">Thaayar Kitchen</span>
+
+          <div className="brand-text">
+            <span className="brand-en lugrasimo">Thaayar Kitchen</span>
+            <span className="brand-ta">தாயார் கிச்சன்</span>
+          </div>
         </div>
 
         {/* Desktop Nav */}
@@ -21,7 +25,7 @@ export default function Header() {
           <Link to="/">Home</Link>
           <Link to="/orders?meal=lunch">Menu</Link>
           <Link to="/checkout">Checkout</Link>
-          <Link to="/reviews">Reviews</Link>  {/* <-- NEW LINK */}
+          <Link to="/reviews">Reviews</Link>
           <Link to="/about">About</Link>
         </nav>
 
@@ -38,13 +42,15 @@ export default function Header() {
         <>
           <div className="overlay" onClick={() => setOpen(false)} />
 
-          <div className={`mobile-menu ${open ? "show" : ""}`}>
-            <button className="close-btn" onClick={() => setOpen(false)}>✕</button>
+          <div className="mobile-menu show">
+            <button className="close-btn" onClick={() => setOpen(false)}>
+              ✕
+            </button>
 
             <Link to="/" onClick={() => setOpen(false)}>Home</Link>
             <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>Menu</Link>
             <Link to="/checkout" onClick={() => setOpen(false)}>Checkout</Link>
-            <Link to="/reviews" onClick={() => setOpen(false)}>Reviews</Link> {/* NEW */}
+            <Link to="/reviews" onClick={() => setOpen(false)}>Reviews</Link>
             <Link to="/about" onClick={() => setOpen(false)}>About</Link>
           </div>
         </>

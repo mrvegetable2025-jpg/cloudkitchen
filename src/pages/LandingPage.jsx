@@ -133,7 +133,7 @@ export default function LandingPage() {
     <div className="container">
       <DeliveryCheckBanner />
 
-      <h1 className="page-title">Choose a Meal</h1>
+      <h1 className="page-title"></h1>
 
       <div className="banner-grid">
         {meals.map((m) => {
