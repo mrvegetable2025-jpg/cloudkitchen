@@ -1418,5 +1418,246 @@ body {
   }
   .hamburger {
     display: block;
+    color: white;
+  }
+}
+/* MOBILE BRAND FIX */
+@media (max-width: 768px) {
+
+  .header-inner {
+    display: flex;
+    justify-content: space-between !important;
+    align-items: center;
+  }
+
+  .brand-block {
+    max-width: 65%;   /* 🔥 prevents logo + text from pushing hamburger */
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-text {
+    flex-shrink: 1; /* allow text to shrink on mobile */
+  }
+
+  .brand-en {
+    font-size: 1.2rem !important;
+  }
+
+  .brand-ta {
+    font-size: 0.9rem !important;
+  }
+
+  .hamburger {
+    display: flex !important;
+    flex-direction: column;
+    z-index: 99999 !important;
+  }
+
+  .hamburger .line {
+    background: white !important;
+    box-shadow: 0 0 10px white;
+  }
+}
+/* Brand Block Layout */
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+/* English */
+.brand-en {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 0 12px rgba(255,255,255,0.3);
+}
+
+/* Tamil */
+.brand-ta {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffd86b;
+  margin-top: -4px;
+  text-shadow: 0 0 10px rgba(255,215,140,0.4);
+}
+/* Hamburger visible on mobile */
+.hamburger {
+  display: none;
+}
+
+.hamburger .line {
+  width: 28px;
+  height: 3px;
+  background-color: white;    /* FIX: white lines */
+  border-radius: 4px;
+  box-shadow: 0 0 10px white; /* glow */
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+  }
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+  }
+}
+@media (max-width: 768px) {
+  .brand-block {
+    gap: 14px;
+  }
+
+  .brand-en {
+    font-size: 1.3rem;
+  }
+
+  .brand-ta {
+    font-size: 1rem;
+  }
+}
+/* RESET ALL OLD HAMBURGER RULES */
+.hamburger,
+.hamburger span,
+.hamburger .line {
+  all: unset;
+}
+
+/* NEW CLEAN HAMBURGER BUTTON */
+.hamburger {
+  display: none;
+  width: 30px;
+  height: 22px;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 99999;
+}
+
+.hamburger .line {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px white;
+}
+
+/* MOBILE VISIBILITY */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none !important;
+  }
+  .hamburger {
+    display: flex !important;
+  }
+}
+/* ========== HAMBURGER → CLOSE (X) ANIMATION ========== */
+
+.hamburger {
+  display: none;
+  width: 30px;
+  height: 22px;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  z-index: 99999;
+}
+
+.hamburger .line {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px white;
+  transition: all 0.3s ease;
+}
+
+/* When menu is open: animate to X */
+.hamburger.open .line:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger.open .line:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open .line:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* Show hamburger on mobile */
+@media (max-width: 768px) {
+  .hamburger {
+    display: flex !important;
+  }
+}
+/* ========================================
+   MODERN GLOW + PERFECT SPACING (EN + TA)
+======================================== */
+
+/* Wrapper */
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.05;
+  margin-top: 0px;
+}
+
+/* English Title */
+.brand-en {
+  font-family: "Lugrasimo", cursive;
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: 1.3px;
+
+  color: #ffffff;
+
+  /* Strong glow */
+  text-shadow:
+    0 0 6px rgba(255,255,255,0.65),
+    0 0 14px rgba(120,170,255,0.7),
+    0 0 28px rgba(120,170,255,0.45);
+  
+  margin-bottom: 2px;   /* Perfect spacing above Tamil */
+}
+
+/* Tamil Title */
+.brand-ta {
+  font-family: "Noto Sans Tamil", sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: #ffd982;
+
+  /* Warm gold glow */
+  text-shadow:
+    0 0 6px rgba(255,215,120,0.55),
+    0 0 14px rgba(255,190,90,0.45),
+    0 0 24px rgba(255,170,60,0.35);
+}
+
+/* Mobile Fine Tuning */
+@media (max-width: 768px) {
+  .brand-en {
+    font-size: 1.38rem;
+    letter-spacing: 1.1px;
+  }
+
+  .brand-ta {
+    font-size: 1.02rem;
   }
 }

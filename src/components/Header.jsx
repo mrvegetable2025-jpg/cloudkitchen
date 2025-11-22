@@ -30,11 +30,15 @@ export default function Header() {
         </nav>
 
         {/* Hamburger */}
-        <div className="hamburger" onClick={() => setOpen(!open)}>
-          <span className="line"></span>
-          <span className="line"></span>
-          <span className="line"></span>
-        </div>
+        <div
+  className={`hamburger ${open ? "open" : ""}`}
+  onClick={() => setOpen(!open)}
+>
+  <span className="line"></span>
+  <span className="line"></span>
+  <span className="line"></span>
+</div>
+
       </div>
 
       {/* MOBILE MENU */}
@@ -43,9 +47,7 @@ export default function Header() {
           <div className="overlay" onClick={() => setOpen(false)} />
 
           <div className="mobile-menu show">
-            <button className="close-btn" onClick={() => setOpen(false)}>
-              ✕
-            </button>
+            
 
             <Link to="/" onClick={() => setOpen(false)}>Home</Link>
             <Link to="/orders?meal=lunch" onClick={() => setOpen(false)}>Menu</Link>
