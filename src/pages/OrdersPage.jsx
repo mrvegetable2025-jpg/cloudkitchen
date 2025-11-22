@@ -190,7 +190,7 @@ export default function OrdersPage() {
         return (
           <section key={d.iso} className="day-section">
             <div className="date-tile fade-soft">
-              <span className="date-icon"></span>
+              
               <span>{labelFull}</span>
             </div>
 
